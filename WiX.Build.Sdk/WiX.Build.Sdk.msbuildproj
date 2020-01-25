@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.Build.NoTargets/1.0.88">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Description>Provides an SDK-type for a project that produces Windows Installer outputs.</Description>
+        <PackageTags>wix</PackageTags>
+        <PackageType>MSBuildSdk</PackageType>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <DevelopmentDependency>true</DevelopmentDependency>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="Sdk\**">
+            <Pack>true</Pack>
+            <PackagePath>Sdk\</PackagePath>
+            <IncludeInPackage>true</IncludeInPackage>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\WiX.Build.Sdk.Tasks\WiX.Build.Sdk.Tasks.csproj">
+            <PrivateAssets>All</PrivateAssets>
+        </ProjectReference>
+    </ItemGroup>
+
+    <Target Name="AddRelatedTasksFiles" AfterTargets="_GetPackageFiles">
+        <ItemGroup>
+            <_PackageFiles Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference')->WithMetadataValue('PrivateAssets', 'All'))">
+                <PackagePath>tasks\%(RecursiveDir)</PackagePath>
+                <Visible>false</Visible>
+                <BuildAction>Content</BuildAction>
+            </_PackageFiles>
+        </ItemGroup>
+    </Target>
+
+</Project>

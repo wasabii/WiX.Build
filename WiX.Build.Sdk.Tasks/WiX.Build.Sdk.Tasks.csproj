@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net47</TargetFrameworks>
+        <LangVersion>8.0</LangVersion>
+        <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>Jerome Haltom</Authors>
+        <Company />
+        <Description>Tasks to support the WiX.Build.Sdk project type.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="WiX.Build.Sdk.Tasks.props" />
+        <None Remove="WiX.Build.Sdk.Tasks.targets" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="WiX.Build.Sdk.Tasks.props">
+            <PackagePath>build</PackagePath>
+        </Content>
+        <Content Include="WiX.Build.Sdk.Tasks.targets">
+            <PackagePath>build</PackagePath>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Build.Framework" Version="16.4.0" />
+        <PackageReference Include="Microsoft.Build.Tasks.Core" Version="16.4.0" />
+        <PackageReference Include="System.Reflection.Metadata" Version="1.8.0" />
+        <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
+    </ItemGroup>
+
+</Project>

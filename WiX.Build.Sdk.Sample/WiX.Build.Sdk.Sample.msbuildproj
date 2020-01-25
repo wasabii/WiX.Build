@@ -1,0 +1,22 @@
+﻿<Project ToolsVersion="4.0">
+    <PropertyGroup>
+        <WixSdkDevMode>true</WixSdkDevMode>
+    </PropertyGroup>
+
+    <Import Project="..\WiX.Build.Sdk\Sdk\Sdk.props" />
+
+    <PropertyGroup>
+        <WixExtensions>WixUIExtension;WixNetFxExtension</WixExtensions>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <HarvestProject Include="../WiX.Build.Sample.App/WiX.Build.Sample.App.csproj" />
+    </ItemGroup>
+
+    <Target Name="Test" AfterTargets="Build">
+        <Message Importance="high" Text="Before" />
+        <Message Importance="high" Text="After" />
+    </Target>
+
+    <Import Project="..\WiX.Build.Sdk\Sdk\Sdk.targets" />
+</Project>

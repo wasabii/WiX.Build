@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netcoreapp2.0;net472</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentAssertions" Version="5.10.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
+        <PackageReference Include="MSTest.TestAdapter" Version="2.0.0" />
+        <PackageReference Include="MSTest.TestFramework" Version="2.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\WiX.Build.Sdk.Tasks.Tests.Actions\WiX.Build.Sdk.Tasks.Tests.Actions.csproj" />
+        <ProjectReference Include="..\WiX.Build.Sdk.Tasks\WiX.Build.Sdk.Tasks.csproj" />
+    </ItemGroup>
+</Project>

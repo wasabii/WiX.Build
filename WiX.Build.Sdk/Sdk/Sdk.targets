@@ -1,0 +1,319 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <LanguageTargets>$(MSBuildToolsPath)\Microsoft.Common.targets</LanguageTargets>
+        <MSBuildAllProjects Condition="'$(MSBuildToolsVersion)' != 'Current'">$(MSBuildAllProjects);$(MsBuildThisFileFullPath)</MSBuildAllProjects>
+    </PropertyGroup>
+
+    <Import Project="$(CustomBeforeWix)" Condition="'$(CustomBeforeWix)' != '' and Exists('$(CustomBeforeWix)')" />
+
+    <PropertyGroup>
+        <IncludeBuildOutput Condition="'$(IncludeBuildOutput)' == ''">false</IncludeBuildOutput>
+    </PropertyGroup>
+
+    <Import Project="$(CustomAfterWix)" Condition="'$(CustomAfterWix)' != '' and Exists('$(CustomAfterWix)')" />
+
+    <Target Name="HarvestProjectOutputItems">
+        <MSBuild Projects="@(HarvestProject)" Targets="PublishItemsOutputGroup;" BuildInParallel="$(BuildInParallel)" Properties="%(HarvestProject.SetConfiguration);%(HarvestProject.SetPlatform);">
+            <Output TaskParameter="TargetOutputs" ItemName="_PublishItems" />
+        </MSBuild>
+        <ItemGroup>
+            <_PublishItemsWithTargetPath Include="@(_PublishItems->HasMetadata('TargetPath'))" />
+            <HarvestComponents Include="@(_PublishItemsWithTargetPath)">
+                <ComponentGroupId>Bin</ComponentGroupId>
+                <ComponentDirectoryId>%(TargetDirId)</ComponentDirectoryId>
+                <ComponentId>%(TargetDirId)_$([System.String]::Copy('%(TargetPath)').Replace('.', '_').Replace('-', '_').Replace('\', '_'))</ComponentId>
+                <ComponentGuid>*</ComponentGuid>
+                <FileId>%(TargetDirId)_$([System.String]::Copy('%(TargetPath)').Replace('.', '_').Replace('-', '_').Replace('\', '_'))</FileId>
+                <FileSource>%(FullPath)</FileSource>
+                <NativeImage Condition=" '%(Extension)' == '.exe' or '%(Extension)' == '.dll' ">true</NativeImage>
+            </HarvestComponents>
+        </ItemGroup>
+    </Target>
+
+    <Target Name="BeforeHarvest">
+
+    </Target>
+
+    <PropertyGroup>
+        <HarvestDependsOn>
+            BeforeHarvest;
+            HarvestProjectOutputItems;
+            AfterHarvest;
+        </HarvestDependsOn>
+    </PropertyGroup>
+
+    <Target Name="Harvest" DependsOnTargets="$(HarvestDependsOn)" Inputs="@(HarvestComponents)" Outputs="$(IntermediateOutputPath)harvest.g.wxs">
+        <GenerateWixFragment Components="@(HarvestComponents)" OutputPath="$(IntermediateOutputPath)harvest.g.wxs" />
+        <ItemGroup>
+            <Compile Include="$(IntermediateOutputPath)harvest.g.wxs" />
+        </ItemGroup>
+        <ItemGroup>
+            <FileWrites Include="$(IntermediateOutputPath)harvest.g.wxs" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="AfterHarvest">
+
+    </Target>
+
+    <PropertyGroup>
+        <GetSourceWithObjectPathDependsOn>
+            Harvest;
+        </GetSourceWithObjectPathDependsOn>
+    </PropertyGroup>
+
+    <Target Name="GetSourceWithObjectPath" DependsOnTargets="$(GetSourceWithObjectPathDependsOn)">
+        <ItemGroup>
+            <TargetPlatformGroup Include="$(TargetPlatforms.Split(';'))" />
+            <SourceWithPlatform Include="@(Compile)">
+                <TargetPlatform>%(TargetPlatformGroup.Identity)</TargetPlatform>
+            </SourceWithPlatform>
+        </ItemGroup>
+        <Message Text="Compile: @(Compile)" Importance="high" />
+        <ItemGroup>
+            <SourceWithObjectPath Include="@(SourceWithPlatform)">
+                <ObjectPath>%(TargetPlatform)\%(RecursiveDir)%(Filename).wixobj</ObjectPath>
+                <TargetPath>$(TargetName)_%(TargetPlatform)$(TargetExt)</TargetPath>
+            </SourceWithObjectPath>
+        </ItemGroup>
+    </Target>
+
+    <PropertyGroup>
+        <CoreCompileDependsOn>
+            GetSourceWithObjectPath;
+        </CoreCompileDependsOn>
+    </PropertyGroup>
+    
+    <Target Name="CoreCompile" DependsOnTargets="$(CoreCompileDependsOn)" Inputs="@(SourceWithObjectPath)" Outputs="@(SourceWithObjectPath->'$(IntermediateOutputPath)%(ObjectPath)')" Condition=" '@(SourceWithObjectPath)' != '' ">
+        <PropertyGroup>
+            <ProjectDefineConstants>
+                Configuration=$(Configuration);
+                ProjectDir=$(ProjectDir);
+                ProjectExt=$(ProjectExt);
+                ProjectFileName=$(ProjectFileName);
+                ProjectName=$(ProjectName);
+                ProjectPath=$(ProjectPath);
+                TargetName=$(TargetName);
+                TargetPath=$(TargetPath);
+                Company=$(Company);
+                Product=$(Product);
+                Version=$(Version);
+            </ProjectDefineConstants>
+        </PropertyGroup>
+        <Candle SourceFiles="%(SourceWithObjectPath.Identity)" InstallerPlatform="%(SourceWithObjectPath.Platform)" AdditionalOptions="$(CompilerAdditionalOptions)" DefineConstants="$(DefineConstants);$(ProjectDefineConstants)" ExtensionDirectory="$(WixExtDir)" Extensions="$(WixExtensions)" OutputFile="$(IntermediateOutputPath)%(SourceWithObjectPath.ObjectPath)" ReferencePaths="$(ReferencePaths)" ToolPath="$(WixInstallPath)" VerboseOutput="true" />
+        <ItemGroup>
+            <FileWrites Include="$(IntermediateOutputPath)%(SourceWithObjectPath.ObjectPath)" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="BeforeCompile">
+
+    </Target>
+
+    <PropertyGroup>
+        <CompileDependsOn>
+            BeforeCompile;
+            GetSourceWithObjectPath;
+            CoreCompile;
+            AfterCompile;
+        </CompileDependsOn>
+    </PropertyGroup>
+
+    <Target Name="Compile" DependsOnTargets="$(CompileDependsOn)">
+
+    </Target>
+
+    <Target Name="AfterCompile">
+
+    </Target>
+
+    <PropertyGroup>
+        <CompileDesignTimeDependsOn>
+            Compile;
+        </CompileDesignTimeDependsOn>
+    </PropertyGroup>
+
+    <Target Name="CompileDesignTime" DependsOnTargets="$(CompileDesignTimeDependsOn)">
+
+    </Target>
+
+    <PropertyGroup>
+        <CoreLinkDependsOn>
+
+        </CoreLinkDependsOn>
+    </PropertyGroup>
+
+    <Target Name="CoreLink" DependsOnTargets="$(CoreLinkDependsOn)" Inputs="@(SourceWithObjectPath->'$(IntermediateOutputPath)%(ObjectPath)')" Outputs="$(TargetDir)%(SourceWithObjectPath.TargetPath)">
+        <Light ObjectFiles="@(SourceWithObjectPath->'$(IntermediateOutputPath)%(ObjectPath)')" OutputFile="$(IntermediateOutputPath)%(SourceWithObjectPath.TargetPath)" ExtensionDirectory="$(WixExtDir)" Extensions="$(WixExtensions)" ToolPath="$(WixInstallPath)" />
+        <ItemGroup>
+            <FileWrites Include="$(TargetDir)%(SourceWithObjectPath.TargetPath)" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="BeforeLink">
+
+    </Target>
+
+    <PropertyGroup>
+        <LinkDependsOn>
+            BeforeLink;
+            Compile;
+            CoreLink;
+            AfterLink;
+        </LinkDependsOn>
+    </PropertyGroup>
+
+    <Target Name="Link" DependsOnTargets="$(LinkDependsOn)">
+
+    </Target>
+
+    <Target Name="AfterLink">
+
+    </Target>
+
+    <Target Name="BeforeBuild">
+
+    </Target>
+
+    <PropertyGroup>
+        <BuildDependsOn>
+            BeforeBuild;
+            Compile;
+            Link;
+            AfterBuild;
+        </BuildDependsOn>
+    </PropertyGroup>
+
+    <Target Name="Build" DependsOnTargets="$(BuildDependsOn)">
+
+    </Target>
+
+    <Target Name="AfterBuild">
+
+    </Target>
+
+    <UsingTask TaskName="GenerateWixFragment" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <Components ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+            <OutputPath ParameterType="System.String" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Code Type="Class" Language="cs">
+                <![CDATA[
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Xml;
+using System.Xml.Linq;
+
+using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
+
+public class GenerateWixFragment : Task, ITask
+{
+
+    static readonly XNamespace wix = (XNamespace)"http://schemas.microsoft.com/wix/2006/wi";
+    static readonly XNamespace netfx = (XNamespace)"http://schemas.microsoft.com/wix/NetFxExtension";
+
+    public ITaskItem[] Components { get; set; }
+    
+    public string OutputPath { get; set; }
+
+    byte[] GetHash(byte[] d)
+    {
+        using (var md5 = MD5.Create())
+            return md5.ComputeHash(d);
+    }
+
+    byte[] GetHashForFile(string path)
+    {
+        return GetHash(File.ReadAllBytes(path));
+    }
+    
+    string GetHashForString(string value)
+    {
+        return BitConverter.ToString(GetHash(Encoding.UTF8.GetBytes(value))).Replace("-", "");
+    }
+
+    string GetGuidForItem(ITaskItem item)
+    {
+        if (item.GetMetadata("ComponentGuid") is string s && !string.IsNullOrWhiteSpace(s))
+            return s;
+        else
+            return new Guid(GetHashForFile(item.GetMetadata("TargetPath"))).ToString();
+    }
+    
+    XElement AddItems(XElement root, IEnumerable<ITaskItem> items)
+    {
+        foreach (var item in items)
+        {
+            var curr = root;
+            var path = Path.GetDirectoryName(item.GetMetadata("TargetPath"));
+            
+            foreach (var fldr in path.Split(new [] { '\\' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var next = curr.Elements(wix + "Directory").FirstOrDefault(i => (string)i.Attribute("Name") == fldr);
+                if (next == null)
+                    curr.Add(next = new XElement(wix + "Directory", new XAttribute("Id", "_" + GetHashForString(fldr)), new XAttribute("Name", fldr)));
+                    
+                curr = next;
+            }
+            
+            curr.Add(
+                new XElement(wix + "Component",
+                    new XAttribute("Id", item.GetMetadata("ComponentId")),
+                    new XAttribute("Guid", GetGuidForItem(item)),
+                    new XElement(wix + "File",
+                        new XAttribute("Id", item.GetMetadata("FileId")),
+                        new XAttribute("Name", Path.GetFileName(item.GetMetadata("TargetPath"))),
+                        new XAttribute("Source", item.GetMetadata("FullPath")),
+                        new XAttribute("KeyPath", "yes"),
+                        item.GetMetadata("NativeImage") == "true" ?
+                            new XElement(netfx + "NativeImage",
+                                new XAttribute("Id", "ngen_" + item.GetMetadata("FileId")),
+                                new XAttribute("Platform", "all"),
+                                new XAttribute("Priority", "2"),
+                                new XAttribute("AppBaseDirectory", item.GetMetadata("ComponentDirectoryId"))) :
+                            null)));
+        }
+        
+        return root;
+    }
+    
+    public override bool Execute()
+    {
+        var unq = Components.GroupBy(i => i.GetMetadata("ComponentId")).Select(i => i.First()).OrderBy(i => i.GetMetadata("ComponentId"));
+        var xml = new XDocument(
+            new XElement(wix + "Wix",
+                new XElement(wix + "Fragment",
+                    unq
+                        .GroupBy(i => i.GetMetadata("ComponentGroupId"))
+                        .Select(i =>
+                            new XElement(wix + "ComponentGroup",
+                                new XAttribute("Id", i.Key),
+                                i.Select(j =>
+                                    new XElement(wix + "ComponentRef",
+                                        new XAttribute("Id", j.GetMetadata("ComponentId")))))),
+                    unq
+                        .GroupBy(i => i.GetMetadata("ComponentDirectoryId"))
+                        .Select(i => AddItems(
+                            new XElement(wix + "DirectoryRef",
+                                new XAttribute("Id", i.Key)),
+                            i)))));
+        
+        xml.Save(OutputPath);
+        return true;
+    }
+
+}
+
+]]>
+            </Code>
+        </Task>
+    </UsingTask>
+
+</Project>

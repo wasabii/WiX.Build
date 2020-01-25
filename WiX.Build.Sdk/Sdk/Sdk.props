@@ -1,0 +1,37 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <UsingWixSdk>true</UsingWixSdk>
+        <MSBuildAllProjects Condition="'$(MSBuildToolsVersion)' != 'Current'">$(MSBuildAllProjects);$(MsBuildThisFileFullPath)</MSBuildAllProjects>
+    </PropertyGroup>
+
+    <Import Project="$(CustomBeforeWixProps)" Condition=" '$(CustomBeforeWixProps)' != '' And Exists('$(CustomBeforeWixProps)') " />
+
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+        <TargetExt>.msi</TargetExt>
+        <DefaultLanguageSourceExtension>.wxs</DefaultLanguageSourceExtension>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <TargetPlatforms>x64;x86</TargetPlatforms>
+        <WixExtensions></WixExtensions>
+    </PropertyGroup>
+
+    <ItemDefinitionGroup>
+        <HarvestProject>
+            <TargetDirId>INSTALLDIR</TargetDirId>
+        </HarvestProject>
+    </ItemDefinitionGroup>
+
+    <Import Project="$(CustomAfterWixProps)" Condition=" '$(CustomAfterWixProps)' != '' And Exists('$(CustomAfterWixProps)') " />
+
+    <ItemGroup>
+        <PackageReference Include="WiX" Version="3.11.2">
+            <IncludeAssets>Build</IncludeAssets>
+            <GeneratePathProperty>true</GeneratePathProperty>
+        </PackageReference>
+    </ItemGroup>
+
+    <UsingTask TaskName="Candle" AssemblyFile="$(WixTasksPath)" Condition="Exists('$(WixTasksPath)')" />
+    <UsingTask TaskName="Light" AssemblyFile="$(WixTasksPath)" Condition="Exists('$(WixTasksPath)')" />
+
+</Project>

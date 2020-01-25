@@ -1,0 +1,42 @@
+﻿<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+    <?if $(sys.BUILDARCH)="x64"?>
+    <?define Win64 ?>
+    <?endif?>
+
+    <Product
+        Id="*"
+        Name="$(var.Product)"
+        Language="1033"
+        Version="$(var.Version)"
+        Manufacturer="$(var.Company)"
+        UpgradeCode="84647659-e954-427e-bfbf-d89bd8010e5b">
+
+        <Package
+            Id="*"
+            InstallerVersion="400"
+            Compressed="yes"
+            InstallScope="perMachine" />
+
+        <MajorUpgrade
+            DowngradeErrorMessage="A newer version of [ProductName] is already installed."
+            AllowDowngrades="no"
+            AllowSameVersionUpgrades="yes" />
+
+        <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
+
+        <?ifdef Win64 ?>
+        <Condition Message="You are attempting to run the 64-bit installer on a 32-bit version of Windows.">
+            <![CDATA[Msix64]]>
+        </Condition>
+        <?endif?>
+
+        <?ifndef Win64 ?>
+        <Condition Message="You are attempting to run the 32-bit installer on a 64-bit version of Windows.">
+            <![CDATA[NOT Msix64]]>
+        </Condition>
+        <?endif?>
+
+    </Product>
+
+</Wix>

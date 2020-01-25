@@ -1,0 +1,30 @@
+﻿<Project>
+    <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="WiX" Version="3.11.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="Microsoft.Deployment.WindowsInstaller">
+            <HintPath>$(WixSdkPath)\Microsoft.Deployment.WindowsInstaller.dll</HintPath>
+            <Private>true</Private>
+        </Reference>
+    </ItemGroup>
+
+    <Target Name="IncludeWixCustomActionOutput" AfterTargets="PackCustomAction">
+        <ItemGroup>
+            <ContentWithTargetPath Include="$(IntermediateOutputPath)$(TargetCAFileName)">
+                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                <TargetPath>$(TargetCAFileName)</TargetPath>
+            </ContentWithTargetPath>
+        </ItemGroup>
+    </Target>
+
+    <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+    <Import Project="$(WixCATargetsPath)" Condition="Exists('$(WixCATargetsPath)')" />
+</Project>

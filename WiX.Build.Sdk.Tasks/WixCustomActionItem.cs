@@ -4,7 +4,7 @@
     /// <summary>
     /// Describes a discovered custom action.
     /// </summary>
-    public class WixCustomActionItem
+    class WixCustomActionItem
     {
 
         /// <summary>

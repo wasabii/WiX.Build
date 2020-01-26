@@ -1,0 +1,17 @@
+<Project>
+
+    <UsingTask
+        TaskName="ShowMetadata"
+        TaskFactory="CodeTaskFactory"
+        AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+        <ParameterGroup>
+            <Source ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
+        </ParameterGroup>
+        <Task>
+            <Reference Include="System.Xml" />
+            <Reference Include="System.Xml.Linq" />
+            <Code Type="Class" Source="$(MSBuildThisFileDirectory)\Common_ShowMetadata.cs" Language="cs" />
+        </Task>
+    </UsingTask>
+
+</Project>

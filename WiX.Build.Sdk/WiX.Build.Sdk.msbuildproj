@@ -5,7 +5,7 @@
         <Description>Provides an SDK-type for a project that produces Windows Installer outputs.</Description>
         <PackageTags>wix</PackageTags>
         <PackageType>MSBuildSdk</PackageType>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <DevelopmentDependency>true</DevelopmentDependency>
     </PropertyGroup>
 

@@ -1,0 +1,9 @@
+<Project>
+    <Import Project="$(MSBuildThisFileDirectory)build\Common.props" />
+
+    <PropertyGroup>
+        <RunSettingsFilePath>$(SolutionDir)\WiX.Build.runsettings</RunSettingsFilePath>
+        <GenerateDependencyFile>true</GenerateDependencyFile>
+    </PropertyGroup>
+
+</Project>

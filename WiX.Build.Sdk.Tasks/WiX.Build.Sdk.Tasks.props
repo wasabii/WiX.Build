@@ -1,5 +1,6 @@
 ﻿<Project>
     <PropertyGroup>
+        <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
         <UsingWixBuildSdkTasks>true</UsingWixBuildSdkTasks>
         <WixBuildSdkTasksPath Condition=" '$(MSBuildRuntimeType)' == 'Core'">$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\WiX.Build.Sdk.Tasks.dll</WixBuildSdkTasksPath>
         <WixBuildSdkTasksPath Condition=" '$(MSBuildRuntimeType)' != 'Core'">$(MSBuildThisFileDirectory)..\tasks\net47\WiX.Build.Sdk.Tasks.dll</WixBuildSdkTasksPath>

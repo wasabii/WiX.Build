@@ -4,6 +4,7 @@
         <TargetFrameworks>netstandard2.0;net47</TargetFrameworks>
         <LangVersion>8.0</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
         <Authors>Jerome Haltom</Authors>
         <Company />
         <Description>Tasks to support the WiX.Build.Sdk project type.</Description>

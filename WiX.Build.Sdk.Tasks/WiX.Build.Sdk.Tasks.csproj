@@ -41,7 +41,6 @@
     </ItemGroup>
 
     <Target Name="CopyPackageToPackage" DependsOnTargets="BuildOnlySettings;ResolveReferences">
-        <Message Text="ReferenceCopyLocalPaths $(TargetFramework): @(ReferenceCopyLocalPaths)" Importance="high" />
         <ItemGroup>
             <_ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->HasMetadata('NuGetPackageId')->WithMetadataValue('CopyLocal', 'true'))"/>
             <BuildOutputInPackage Include="@(_ReferenceCopyLocalPaths)" TargetPath="%(_ReferenceCopyLocalPaths.DestinationSubPath)"/>
